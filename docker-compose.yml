@@ -1,0 +1,35 @@
+version: '3.7'
+
+volumes:
+    logs:
+        driver: local
+    my-db:
+services:
+    db:
+        image: mysql:5.7
+        restart: always
+        environment:
+            MYSQL_DATABASE: 'shop'
+            MYSQL_USER: 'user'
+            MYSQL_PASSWORD: 'secret'
+            MYSQL_ROOT_PASSWORD: 'secret'
+        ports:
+            - '3306:3306'
+        expose:
+            - '3306'
+        volumes:
+            - my-db:/var/lib/mysql
+    web:
+        build:
+            context: .
+            dockerfile: DockerFile
+        image: php:7.4-apache
+        working_dir: /var/www
+        command: php -S 0.0.0.0:8080 -t public
+        environment:
+            docker: "true"
+        ports:
+            - 8080:8080
+        volumes:
+            - .:/var/www
+            - logs:/var/www/logs

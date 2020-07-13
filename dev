@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+case $1 in
+   "")
+       echo "Available options:
+        up - Bring up the containers
+        up build - Build and bring up the containers
+        down - Take down the containers
+        init - Run dev:init in the PHP container
+        dump - Regenerate autoload in the PHP container"
+       ;;
+   up)
+       if [ "$2" == "build" ]; then
+           docker-compose up --build -d
+       else
+           docker-compose up -d
+       fi
+       ;;
+   down)
+       docker-compose down
+       ;;
+
+   dump)
+       composer dump-autoload
+       ;;
+   bash)
+      docker exec -ti shop_web_1 /bin/bash
+      ;;
+   migrate)
+      docker-compose run web vendor/bin/phinx migrate -c phinx.php
+      ;;
+   seed)
+      docker-compose run web vendor/bin/phinx seed:run
+      ;;
+   init)
+      ./dev up
+      ./dev migrate
+      ./dev seed
+      ;;
+   restart)
+        ./dev down
+        ./dev up
+        ;;
+esac
